@@ -8,6 +8,7 @@ on:
 jobs:
   test-time:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +28,7 @@ jobs:
       - name: Run timer check (dry)
         id: timer
         run: |
+          set -o pipefail
           echo "UTC time:"
           date -u
           echo "New York time:"
