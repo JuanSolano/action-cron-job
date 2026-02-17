@@ -3,7 +3,7 @@ name: Test NY Timer
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
+    - cron: '*/5 * * * *' # every 5 minutes
 
 jobs:
   test-time:
@@ -15,6 +15,15 @@ jobs:
         with:
           node-version: 20
 
+      # Restore persisted state (prevents multiple runs per NY day)
+      - name: Restore state cache
+        uses: actions/cache@v4
+        with:
+          path: .state
+          key: purge-state-${{ github.repository }}-${{ github.ref_name }}
+          restore-keys: |
+            purge-state-${{ github.repository }}-
+
       - name: Run timer check (dry)
         run: |
           echo "UTC time:"
@@ -22,6 +31,13 @@ jobs:
           echo "New York time:"
           TZ=America/New_York date
           node HPTO/scripts/should-purge.mjs
+
+      # Save updated state after script runs
+      - name: Save state cache
+        uses: actions/cache@v4
+        with:
+          path: .state
+          key: purge-state-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_id }}
 
       - name: Send notification
         if: always()

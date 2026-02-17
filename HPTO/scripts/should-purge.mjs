@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const configPath = path.join(__dirname, "..", "config", "purgeConfig.json");
-const statePath = path.join(__dirname, "..", "config", "state.json");
+const statePath = path.join(__dirname, "..", ".state", "state.json");
 
 const cfg = JSON.parse(fs.readFileSync(configPath, "utf8"));
 
@@ -47,6 +47,7 @@ const inWindow = nowMin >= targetMin && nowMin <= targetMin + window;
 
 // Load state (to avoid repeating same day)
 let state = {};
+fs.mkdirSync(path.dirname(statePath), { recursive: true });
 if (fs.existsSync(statePath)) {
     try { state = JSON.parse(fs.readFileSync(statePath, "utf8")); } catch {}
 }
