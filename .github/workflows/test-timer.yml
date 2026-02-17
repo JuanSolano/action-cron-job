@@ -20,9 +20,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .state
-          key: purge-state-${{ github.repository }}-${{ github.ref_name }}
+          key: purge-state-${{ github.repository }}-${{ github.ref_name }}-restore
           restore-keys: |
-            purge-state-${{ github.repository }}-
+            purge-state-${{ github.repository }}-${{ github.ref_name }}-
 
       - name: Run timer check (dry)
         run: |
@@ -32,7 +32,7 @@ jobs:
           TZ=America/New_York date
           node HPTO/scripts/should-purge.mjs
 
-      # Save updated state after script runs
+      # Save the updated state after the script runs
       - name: Save state cache
         uses: actions/cache@v4
         with:
