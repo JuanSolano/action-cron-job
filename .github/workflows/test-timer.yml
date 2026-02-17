@@ -11,12 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Print current time
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run timer check (dry)
         run: |
           echo "UTC time:"
           date -u
           echo "New York time:"
           TZ=America/New_York date
+          node scripts/should-purge.mjs
 
       - name: Send notification
         if: always()
