@@ -25,12 +25,17 @@ jobs:
             purge-state-${{ github.repository }}-${{ github.ref_name }}-
 
       - name: Run timer check (dry)
+        id: timer
         run: |
           echo "UTC time:"
           date -u
           echo "New York time:"
           TZ=America/New_York date
           node HPTO/scripts/should-purge.mjs
+
+      - name: Simulated purge step
+        if: steps.timer.outputs.shouldPurge == 'true'
+        run: echo "🚀 Would purge Fastly surrogate key (DRY RUN)"
 
       # Save the updated state after the script runs
       - name: Save state cache

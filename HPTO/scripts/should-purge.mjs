@@ -64,8 +64,14 @@ console.log("Already ran today:", alreadyRanToday);
 console.log("DRY RUN shouldPurge:", shouldPurge);
 console.log("SurrogateKey (not used yet):", cfg.surrogateKey);
 
+
 // If we would purge, persist state (dry-run still updates state so we can test behavior)
 if (shouldPurge) {
     fs.writeFileSync(statePath, JSON.stringify({ lastRunNYDate: nyDate }, null, 2));
     console.log("State updated:", statePath);
+}
+
+// --- GitHub Actions output (so YAML can conditionally run steps) ---
+if (process.env.GITHUB_OUTPUT) {
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `shouldPurge=${shouldPurge}\n`);
 }
