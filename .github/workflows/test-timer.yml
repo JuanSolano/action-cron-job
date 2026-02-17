@@ -21,7 +21,7 @@ jobs:
           date -u
           echo "New York time:"
           TZ=America/New_York date
-          node scripts/should-purge.mjs
+          node HPTO/scripts/should-purge.mjs
 
       - name: Send notification
         if: always()
