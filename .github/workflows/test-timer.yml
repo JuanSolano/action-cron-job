@@ -19,7 +19,7 @@ jobs:
       - name: Restore state cache
         uses: actions/cache@v4
         with:
-          path: .state
+          path: HPTO/.state
           key: purge-state-${{ github.repository }}-${{ github.ref_name }}-restore
           restore-keys: |
             purge-state-${{ github.repository }}-${{ github.ref_name }}-
@@ -36,7 +36,7 @@ jobs:
       - name: Save state cache
         uses: actions/cache@v4
         with:
-          path: .state
+          path: HPTO/.state
           key: purge-state-${{ github.repository }}-${{ github.ref_name }}-${{ github.run_id }}
 
       - name: Send notification
