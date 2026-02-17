@@ -1,14 +1,18 @@
-name: Test NY Timer
+name: HPTO Purge Scheduler (NY)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *' # every 5 minutes
+    - cron: "*/15 * * * *"
 
 jobs:
-  test-time:
+  timer:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    outputs:
+      shouldPurge: ${{ steps.timer.outputs.shouldPurge }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -16,7 +20,6 @@ jobs:
         with:
           node-version: 20
 
-      # Restore persisted state (prevents multiple runs per NY day)
       - name: Restore state cache
         uses: actions/cache@v4
         with:
@@ -34,19 +37,7 @@ jobs:
           echo "New York time:"
           TZ=America/New_York date
           node HPTO/scripts/should-purge.mjs
-          
-      - name: Build Fastly purge request (DRY RUN)
-        if: steps.timer.outputs.shouldPurge == 'true'
-        env:
-          FASTLY_SERVICE_ID: ${{ secrets.FASTLY_SERVICE_ID_TEST }}
-          FASTLY_API_KEY: ${{ secrets.FASTLY_API_KEY_TEST }}
-        run: node HPTO/scripts/fastly-purge.mjs
 
-      - name: Simulated purge step
-        if: steps.timer.outputs.shouldPurge == 'true'
-        run: echo "🚀 Would purge Fastly surrogate key (DRY RUN)"
-
-      # Save the updated state after the script runs
       - name: Save state cache
         uses: actions/cache@v4
         with:
@@ -61,3 +52,28 @@ jobs:
           else
             echo "Notification sent automatically by schedule."
           fi
+          echo "shouldPurge=${{ steps.timer.outputs.shouldPurge }}"
+
+  purge-fastly:
+    needs: timer
+    if: needs.timer.outputs.shouldPurge == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simulate Fastly purge
+        run: |
+          echo "Purging Fastly cache now (surrogate key: homepage-redesign)..."
+
+    # --- Real purge via reusable workflow (enable later) ---
+    # uses: ./.github/workflows/fastly-cache-purge.yml
+    # secrets: inherit
+    # with:
+    #   surrogate_key: homepage-redesign
+
+  purge-notification:
+    needs: [timer, purge-fastly]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Timer decision: shouldPurge=${{ needs.timer.outputs.shouldPurge }}"
+          echo "Purge job result: ${{ needs.purge-fastly.result }}"

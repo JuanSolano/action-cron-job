@@ -45,7 +45,7 @@ const window = Number(cfg.windowMinutes ?? 0);
 
 const inWindow = nowMin >= targetMin && nowMin <= targetMin + window;
 
-// Load state (to avoid repeating same day)
+// Load state (to avoid repeating the same day)
 let state = {};
 fs.mkdirSync(path.dirname(statePath), { recursive: true });
 if (fs.existsSync(statePath)) {
@@ -56,16 +56,7 @@ const alreadyRanToday = state.lastRunNYDate === nyDate;
 
 const shouldPurge = inWindow && !alreadyRanToday;
 
-console.log("NY date:", nyDate);
-console.log("NY time:", nyTime);
-console.log("Target:", cfg.targetTimeNY, `(+${window}m window)`);
-console.log("In window:", inWindow);
-console.log("Already ran today:", alreadyRanToday);
-console.log("DRY RUN shouldPurge:", shouldPurge);
-console.log("SurrogateKey (not used yet):", cfg.surrogateKey);
-
-
-// If we would purge, persist state (dry-run still updates state so we can test behavior)
+// If we purge, persist state (dry-run still updates state so we can test behavior)
 if (shouldPurge) {
     fs.writeFileSync(statePath, JSON.stringify({ lastRunNYDate: nyDate }, null, 2));
     console.log("State updated:", statePath);
