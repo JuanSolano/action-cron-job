@@ -1,5 +1,7 @@
 {
     "targetTimeNY": "16:31",
     "windowMinutes": 10,
-    "surrogateKey": "hpto-homepage"
+    "surrogateKey": "hpto-homepage",
+    "fastlyServiceId": "SERVICE_ID_PLACEHOLDER",
+    "dryRun": true
 }

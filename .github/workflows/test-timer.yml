@@ -32,6 +32,13 @@ jobs:
           echo "New York time:"
           TZ=America/New_York date
           node HPTO/scripts/should-purge.mjs
+          
+      - name: Build Fastly purge request (DRY RUN)
+        if: steps.timer.outputs.shouldPurge == 'true'
+        env:
+          FASTLY_SERVICE_ID: ${{ secrets.FASTLY_SERVICE_ID_TEST }}
+          FASTLY_API_KEY: ${{ secrets.FASTLY_API_KEY_TEST }}
+        run: node HPTO/scripts/fastly-purge.mjs
 
       - name: Simulated purge step
         if: steps.timer.outputs.shouldPurge == 'true'
